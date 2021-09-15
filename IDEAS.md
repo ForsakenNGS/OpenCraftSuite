@@ -1,0 +1,33 @@
+- Peer-to-Peer syncronisation
+  - Sync targets are (will require the addon on the other side too):
+    - Guild-Members
+    - Friends
+    - Explicitly added peers (discovery via raid / trade chat?)
+  - Beside just your char/alts professions, the addon syncronizes with all available peers
+  - Interface
+    - Extra crafting window for peer characters (easier, but no good solution)
+    - Integrate the peer chars in the default crafting window
+      - Toggle to include/exclude guild/friend/realm characters in the profession list
+  - For non-guild characters task user to trade the crafter directly
+  - Automate crafting tasks towards guild mates (using addon-instructions within the mail containing the reagents for crafting)
+    - When queuing a craft from a guild mate it will create a task to mail the materials to the guild crafter
+    - For enchanting it should offer to invite/visit the crafter since it can't be done by mail
+    - When holding all required item with the mailbox open mail them to the crafter
+      - If all reagents match into the mail send it as one letter
+      - If the reagents require multiple letters, split up and send multiple (has to be considered when transmitting addon-instructions within the mail body!)
+      - Task changes to "waiting for <playerName> to craft item" as a reminder
+        - Task resolved when receiving the crafted item by mail or trade
+    - When the crafter checks his mail it should read the mail and add a task like "Craft item <name> for <playerName> (<guildname>)"
+      - Click to take reagents from the mailbox (when mailbox is open)
+      - Click to create items (when the proper tradeskill is open)
+      - Click to send crafted items to the requesting player (when mailbox is open)
+- Realm//Faction based trading between addon users
+  - Player A sets up a sell order with in the addon (e.g. Netherweave Cloth with max 400)
+  - Player B wants to craft something that requires Netherweave Cloth, but he has none
+    - The addon checks for sell orders from online players and finds Player A
+    - Beside the vendor/auctionhouse price for the item it will consider and suggest buying from Player A if it is the cheapest option
+    - Player B can whisper Player A by clicking on the task and initiate the trade
+  - Player C is searching to buy Netherweave Cloth
+    - In addition to the regular auctionhouse results he will see either
+      - All addon setup sell orders as additional results (may be hard to implement cleanly)
+      - A notice above/below the result list like "There are 3 sell offers from OCS-Users online starting at 88s 29c" that links to a dedicated view

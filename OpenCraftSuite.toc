@@ -1,0 +1,83 @@
+## Interface: 20501
+## Title: OpenCraftSuite
+## Notes: Automate the crafting, sourcing and selling of items
+## Author: Mylaerla-Everlook
+## Version: v0.1.0
+## SavedVariables: OpenCraftSuiteDB
+## OptionalDeps: TradeSkillMaster_AppHelper
+
+# Libraries
+embeds.xml
+Lib\LibTipHooker-1.1\lib.xml
+
+# Translations
+Core\Locale.lua
+
+# Utility functions
+Core\Utils.lua
+
+# GUI functions
+GUI\AceGUIWidget-Table.lua
+GUI\AceGUIWidget-ItemRow.lua
+Core\GUI.lua
+
+# Module base classes
+Core\ModuleBase.lua
+Core\DebugBase.lua
+Core\TaskBase.lua
+Core\TaskSolverBase.lua
+Core\InventoryBase.lua
+Core\SourceBase.lua
+Core\FrameBase.lua
+Core\ItemGroups.lua
+
+# Debug modules
+Core\Debug.lua
+Core\Debug\Ace.lua
+
+# Frame functions
+Core\Frames.lua
+Core\Frames\Design.lua
+Core\Frames\Crafting.lua
+Core\Frames\TaskList.lua
+Core\Frames\ItemGroups.lua
+Core\Frames\Auctionhouse.lua
+
+# Tooltip functions
+Core\Tooltip.lua
+
+# Event handler
+Core\Events.lua
+
+# Task types
+Core\Tasks.lua
+Core\Tasks\Relog.lua
+Core\Tasks\BankFetch.lua
+Core\Tasks\GuildBankFetch.lua
+Core\Tasks\MailFetch.lua
+Core\Tasks\MailSend.lua
+Core\Tasks\Craft.lua
+Core\Tasks\AuctionhouseBuy.lua
+
+# Task solver
+Core\TaskSolver.lua
+Core\TaskSolver\Default.lua
+
+# Inventory types
+Core\Inventory.lua
+Core\Inventory\Bag.lua
+Core\Inventory\Bank.lua
+Core\Inventory\GuildBank.lua
+Core\Inventory\Mail.lua
+Core\Inventory\Auctionhouse.lua
+Core\Inventory\Tooltip.lua
+
+# Price sources
+Core\Sources.lua
+Core\Sources\TSM.lua
+Core\Sources\Auctionhouse.lua
+Core\Sources\Crafting.lua
+Core\Sources\Tooltip.lua
+
+# Main addon file
+OpenCraftSuite.lua
