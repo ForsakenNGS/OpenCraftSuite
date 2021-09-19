@@ -30,7 +30,7 @@ function SourceTooltip:InjectTooltip(tooltipType, tooltip, extra1, extra2, extra
         local itemSuffix = ""
         if (type(extra3) == "number") and (type(extra4) == "number") then
           local _, itemCount = GetContainerItemInfo(extra3, extra4)
-          itemQuantity = itemCount
+          itemQuantity = itemCount or 1
         end
         if IsShiftKeyDown() and (itemQuantity > 1) then
           itemSuffix = " x"..itemQuantity

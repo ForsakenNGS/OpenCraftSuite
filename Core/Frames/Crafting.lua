@@ -11,6 +11,7 @@ function CraftingFrame:OnInitialize()
   self:RegisterEvent("CRAFT_CLOSE", "OnCraftClose");
   self:RegisterEvent("TRADE_SKILL_SHOW", "OnTradeSkillShow")
   self:RegisterEvent("TRADE_SKILL_CLOSE", "OnTradeSkillClose")
+  self:RegisterEvent("TRADE_SKILL_UPDATE", "OnTradeSkillUpdate")
 end
 
 function CraftingFrame:GetAceOptions()
@@ -61,42 +62,58 @@ function CraftingFrame:CreateContents()
   self.widget:AddChild(self.professionList)
   -- Profession recipe table
   self.recipeTable = nil
+  self.recipeData = {}
+  self.recipeExtra = {}
   self.searchBar = nil
   self.recipeDetails = nil
+end
+
+function CraftingFrame:GetRecipeExtra(recipeData)
+  if not self.recipeExtra[recipeData.skillId] then
+    local name, _, icon = GetSpellInfo(recipeData.skillId)
+    local extra = {
+      name = name, icon = icon,
+      countMin = nil, countMax = nil
+    }
+    -- Calculate count craftable
+    local reagentMin, reagentMax
+    for reagentId, reagentCount in pairs(recipeData.reagents) do
+      local countOnHand = OCS.Inventory:GetItemsOnHand(reagentId)
+      local countOverall = OCS.Inventory:GetItemsOverall(reagentId)
+      local craftsOnHand = floor(countOnHand / reagentCount)
+      local craftsOverall = floor(countOverall / reagentCount)
+      if (extra.countMin == nil) or (craftsOnHand < extra.countMin) then
+        extra.countMin = craftsOnHand
+      end
+      if (extra.countMax == nil) or (craftsOverall < extra.countMax) then
+        extra.countMax = craftsOverall
+      end
+    end
+    -- Write into cache
+    self.recipeExtra[recipeData.skillId] = extra
+  end
+  return self.recipeExtra[recipeData.skillId]
+end
+
+function CraftingFrame:UpdateRecipiesData(skillString, charName, filter)
+  -- Update recipe list
+  if filter then
+    self.recipeData = self.source:GetRecipeDataFiltered(skillString, charName, filter)
+  else
+    self.recipeData = self.source:GetRecipeData(skillString, charName) or {}
+  end
+  -- Update UI table
+  if self.recipeTable then
+    self.recipeTable:UpdateData()
+  end
 end
 
 function CraftingFrame:UpdateRecipiesTable(skillString, charName)
   local searchBar = self:CreateRecipiesSearchbar()
   local recipeTable = self:CreateRecipiesTable()
   local recipeDetails = self:CreateRecipieDetails()
-  local tableData = self.source:GetRecipeData(skillString, charName) or {}
+  self.recipeData = {}
   local recipeExtra = {}
-  local function getRecipeExtra(recipeData)
-    if not recipeExtra[recipeData.skillId] then
-      local name, _, icon = GetSpellInfo(recipeData.skillId)
-      local extra = {
-        name = name, icon = icon,
-        countMin = nil, countMax = nil
-      }
-      -- Calculate count craftable
-      local reagentMin, reagentMax
-      for reagentId, reagentCount in pairs(recipeData.reagents) do
-        local countOnHand = OCS.Inventory:GetItemsOnHand(reagentId)
-        local countOverall = OCS.Inventory:GetItemsOverall(reagentId)
-        local craftsOnHand = floor(countOnHand / reagentCount)
-        local craftsOverall = floor(countOverall / reagentCount)
-        if (extra.countMin == nil) or (craftsOnHand < extra.countMin) then
-          extra.countMin = craftsOnHand
-        end
-        if (extra.countMax == nil) or (craftsOverall < extra.countMax) then
-          extra.countMax = craftsOverall
-        end
-      end
-      -- Write into cache
-      recipeExtra[recipeData.skillId] = extra
-    end
-    return recipeExtra[recipeData.skillId]
-  end
   -- Poistioning
   searchBar:ClearAllPoints()
   searchBar:SetPoint("TOPLEFT")
@@ -110,20 +127,18 @@ function CraftingFrame:UpdateRecipiesTable(skillString, charName)
   recipeDetails:SetPoint("BOTTOMRIGHT")
   -- Search bar
   searchBar:SetCallback("OnTextChanged", function(widget, _, text)
-    tableData = self.source:GetRecipeDataFiltered(skillString, charName, text)
-    recipeTable:UpdateData()
+    self:UpdateRecipiesData(skillString, charName, text)
   end)
   searchBar:SetCallback("OnEnterPressed", function(widget, _, text)
-    tableData = self.source:GetRecipeDataFiltered(skillString, charName, text)
-    recipeTable:UpdateData()
+    self:UpdateRecipiesData(skillString, charName, text)
   end)
   -- Recipe table
   recipeTable:SetCallback("OnTableRowUpdate", function(widget, _, cells, rowIndex)
     -- Update cell content
     local searchText = searchBar:GetText()
-    local recipeData = tableData[rowIndex]
+    local recipeData = self.recipeData[rowIndex]
     if recipeData then
-      local recipeExtra = getRecipeExtra(recipeData)
+      local recipeExtra = self:GetRecipeExtra(recipeData)
       if recipeExtra.countMax == 0 then
         cells[1]:SetText("|cffff0000"..recipeExtra.countMin.."|r")
       elseif recipeExtra.countMin ~= recipeExtra.countMax then
@@ -139,15 +154,15 @@ function CraftingFrame:UpdateRecipiesTable(skillString, charName)
   recipeTable:SetCallback("OnUpdateData", function(widget)
     -- Update available data
     local searchText = searchBar:GetText()
-    local recipeCount = #(tableData)
+    local recipeCount = #(self.recipeData)
     self:Log("Update data count: "..recipeCount, "debug")
     widget:SetRowCount(recipeCount);
   end)
   recipeTable:SetCallback("OnTableRowEnter", function(widget, _, cells, rowIndex)
-    if tableData[rowIndex] then
+    if self.recipeData[rowIndex] then
       GameTooltip:ClearAllPoints()
       GameTooltip:SetOwner(UIParent, "ANCHOR_CURSOR")
-      GameTooltip:SetHyperlink(tableData[rowIndex].skillLink or tableData[rowIndex].itemLink)
+      GameTooltip:SetHyperlink(self.recipeData[rowIndex].skillLink or self.recipeData[rowIndex].itemLink)
       GameTooltip:Show()
     end
   end)
@@ -157,15 +172,15 @@ function CraftingFrame:UpdateRecipiesTable(skillString, charName)
   recipeTable:SetCallback("OnTableSel", function(widget, _, rowIndex)
     if rowIndex then
       if IsShiftKeyDown() then
-        local recipeLink = tableData[rowIndex].skillLink or tableData[rowIndex].itemLink
+        local recipeLink = self.recipeData[rowIndex].skillLink or self.recipeData[rowIndex].itemLink
         SetItemRef(recipeLink, recipeLink, "LeftButton")
       end
-      self:CreateRecipieDetails(tableData[rowIndex], skillString)
+      self:CreateRecipieDetails(self.recipeData[rowIndex], skillString)
     else
       self:HideRecipieDetails()
     end
   end)
-  recipeTable:UpdateData()
+  self:UpdateRecipiesData(skillString, charName)
   self:HideRecipieDetails()
 end
 
@@ -661,5 +676,13 @@ function CraftingFrame:OnTradeSkillClose()
   if self:GetReplaceCrafting() and (self.craftingType == "TradeSkill") then
     -- Open crafting window
     self:Hide()
+  end
+end
+
+function CraftingFrame:OnTradeSkillUpdate()
+  self:Log("OnTradeSkillUpdate", "debug")
+  if self.recipeTable then
+    self.recipeExtra = {}
+    self.recipeTable:UpdateData()
   end
 end

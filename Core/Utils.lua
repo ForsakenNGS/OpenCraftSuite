@@ -115,7 +115,7 @@ function OCS.Utils:FormatMoney(moneyCoppers)
     currencyFactor = currencyFactor / 100
     currencyIndex = currencyIndex - 1
   end
-  return trim(result)
+  return strtrim(result)
 end
 
 function OCS.Utils:DumpVariable(var, indent, returnResult)

@@ -21,7 +21,7 @@
       - Click to take reagents from the mailbox (when mailbox is open)
       - Click to create items (when the proper tradeskill is open)
       - Click to send crafted items to the requesting player (when mailbox is open)
-- Realm//Faction based trading between addon users
+- Realm/Faction based trading between addon users
   - Player A sets up a sell order with in the addon (e.g. Netherweave Cloth with max 400)
   - Player B wants to craft something that requires Netherweave Cloth, but he has none
     - The addon checks for sell orders from online players and finds Player A
@@ -31,3 +31,4 @@
     - In addition to the regular auctionhouse results he will see either
       - All addon setup sell orders as additional results (may be hard to implement cleanly)
       - A notice above/below the result list like "There are 3 sell offers from OCS-Users online starting at 88s 29c" that links to a dedicated view
+- Track proccs when creating flasks/potions/transmutes
