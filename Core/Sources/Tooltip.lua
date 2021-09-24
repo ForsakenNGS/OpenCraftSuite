@@ -38,6 +38,7 @@ function SourceTooltip:InjectTooltip(tooltipType, tooltip, extra1, extra2, extra
         end
         tooltip:AddDoubleLine("  |cff8080ff"..itemPriceType..itemSuffix.."|r", OCS.Utils:FormatMoney(itemPrice))
       end
+      tooltip:Show()
     end
   end
 end

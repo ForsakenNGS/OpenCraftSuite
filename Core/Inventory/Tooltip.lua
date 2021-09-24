@@ -27,6 +27,7 @@ function InventoryTooltip:InjectTooltip(type, tooltip, ...)
           tooltip:AddDoubleLine("  "..characterName, "|cffffffff"..characterCount.."|r |cff8080ff("..strjoin(", ", unpack(characterText))..")|r")
         end
       end
+      tooltip:Show()
     end
   end
 end
